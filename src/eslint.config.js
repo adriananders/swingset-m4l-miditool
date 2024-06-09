@@ -22,7 +22,7 @@ module.exports = [
   },
   {
     ignores: [
-      "*/seedrandom.js",
+      "seedrandom.js",
       "coverage/*"
     ]
   }

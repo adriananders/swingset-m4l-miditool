@@ -3,3 +3,5 @@ coverage/.DS_Store
 .DS_Store
 /coverage
 /node_modules
+/src/coverage
+/src/node_modules
