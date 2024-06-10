@@ -8,11 +8,11 @@ var midVelValue = 64.0;
 var minVelValue = 1.0;
 
 /*
-	Structure of note object:
-	{
-		note_id: int,
-		pitch: int 0-127,
-		start_time: float,
+    Structure of note object:
+    {
+        note_id: int,
+        pitch: int 0-127,
+        start_time: float,
         duration: float,
         velocity: int 1-127,
         mute: 0,
@@ -23,8 +23,8 @@ var minVelValue = 1.0;
 */
 
 function getGridSpeedMultiplier(gridSpeed) {
-	var den = Math.pow(2, gridSpeed);
-	return 32.0 / den;
+    var den = Math.pow(2, gridSpeed);
+    return 32.0 / den;
 }
 
 function positiveRemainderDivide(number) {
@@ -48,22 +48,22 @@ function alignPos(number) {
 
 function interpolateSubStep({noteGridPos, steps}) {
     var alignedNoteGridPos = alignPos(noteGridPos);
-	var startIndex = Math.floor(alignedNoteGridPos);
+    var startIndex = Math.floor(alignedNoteGridPos);
     startIndex = alignPos(startIndex);
-	var startOffset = steps[startIndex];
-	var endIndex = Math.ceil(alignedNoteGridPos);
+    var startOffset = steps[startIndex];
+    var endIndex = Math.ceil(alignedNoteGridPos);
     endIndex = alignPos(endIndex);
-	var endOffset = steps[endIndex];
-	var range = endOffset - startOffset;
-	var subStepLoc = alignedNoteGridPos - startIndex;
-	var subStepAmount = subStepLoc * range;
-	return startOffset + subStepAmount;
+    var endOffset = steps[endIndex];
+    var range = endOffset - startOffset;
+    var subStepLoc = alignedNoteGridPos - startIndex;
+    var subStepAmount = subStepLoc * range;
+    return startOffset + subStepAmount;
 }
 
 function scaleTimeAdj({unscaledTimeAdj, gridSpeed, factor}) {
-	var scaledTimeAdj = unscaledTimeAdj / factor;
-	var scaleOffset = 0.015625 * Math.pow(2, gridSpeed);
-	return scaledTimeAdj * scaleOffset;
+    var scaledTimeAdj = unscaledTimeAdj / factor;
+    var scaleOffset = 0.015625 * Math.pow(2, gridSpeed);
+    return scaledTimeAdj * scaleOffset;
 }
 
 function getNoteGridPos({startTime, gridSpeed}) {
@@ -72,301 +72,301 @@ function getNoteGridPos({startTime, gridSpeed}) {
 }
 
 function adjustByTimeSteps({startTime, timeSteps, gridSpeed}) {
-	var noteGridPos = getNoteGridPos({startTime: startTime, gridSpeed: gridSpeed});
-	var unscaledTimeAdj = interpolateSubStep({
-		noteGridPos: noteGridPos,
-		steps: timeSteps,
-	});
-	var scaledAdj = scaleTimeAdj({
-		unscaledTimeAdj: unscaledTimeAdj,
-		gridSpeed: gridSpeed,
-		factor: 100,
-	});
-	return startTime + scaledAdj;
+    var noteGridPos = getNoteGridPos({startTime: startTime, gridSpeed: gridSpeed});
+    var unscaledTimeAdj = interpolateSubStep({
+        noteGridPos: noteGridPos,
+        steps: timeSteps,
+    });
+    var scaledAdj = scaleTimeAdj({
+        unscaledTimeAdj: unscaledTimeAdj,
+        gridSpeed: gridSpeed,
+        factor: 100,
+    });
+    return startTime + scaledAdj;
 }
 
 
 function randomizeRangePercentage({rndAmt, rndSeed, rndRange, noteId}) {
-	var rng = Math.random()
+    var rng = Math.random()
     /* istanbul ignore next */ 
-	if(rndSeed !== -1) {
+    if(rndSeed !== -1) {
         // seedrandom MUST be used as a constructor in Max/MSP due to es5 (even though Jest dislikes it).
-		var seededRng = new Math.seedrandom(rndSeed * noteId);
-		rng = seededRng();
-	}
-	rng = (rng * 2.0) - 1;
-	return rng * (rndAmt / rndRange);
+        var seededRng = new Math.seedrandom(rndSeed * noteId);
+        rng = seededRng();
+    }
+    rng = (rng * 2.0) - 1;
+    return rng * (rndAmt / rndRange);
 }
 
 function adjustByRandomTime({startTime, rndAmt, rndSeed, gridSpeed, noteId}) {
-	var rng = randomizeRangePercentage({
-		rndAmt: rndAmt, 
-		rndSeed: rndSeed, 
-		rndRange: 100.0,
-		noteId: noteId
-	});
-	var scaledTimeAdj = scaleTimeAdj({
-		unscaledTimeAdj: rng,
-		gridSpeed: gridSpeed,
-		factor: 1,
-	});
-	return startTime + scaledTimeAdj;
+    var rng = randomizeRangePercentage({
+        rndAmt: rndAmt, 
+        rndSeed: rndSeed, 
+        rndRange: 100.0,
+        noteId: noteId
+    });
+    var scaledTimeAdj = scaleTimeAdj({
+        unscaledTimeAdj: rng,
+        gridSpeed: gridSpeed,
+        factor: 1,
+    });
+    return startTime + scaledTimeAdj;
 }
 
 function adjustByTimeOffset({startTime, offset, gridSpeed}) {
-	var scaledTimeAdj = scaleTimeAdj({
-		unscaledTimeAdj: offset,
-		gridSpeed: gridSpeed,
-		factor: 100,
-	});
-	return startTime + scaledTimeAdj;
+    var scaledTimeAdj = scaleTimeAdj({
+        unscaledTimeAdj: offset,
+        gridSpeed: gridSpeed,
+        factor: 100,
+    });
+    return startTime + scaledTimeAdj;
 }
 
 function quantizeTiming({startTime, ppqQuant}) {
-	var ppqArr = [
-		960,
-		480,
-		384,
-		240,
-		120,
-		96,
-		60,
-		48,
-		24,
-		16,
-		12,
-		8,
-		6,
-		4,
-		3,
-		2,
-		1
-	];
-	var ppq = ppqArr[ppqQuant];
-	
-	return Math.round(startTime * ppq) / ppq;
+    var ppqArr = [
+        960,
+        480,
+        384,
+        240,
+        120,
+        96,
+        60,
+        48,
+        24,
+        16,
+        12,
+        8,
+        6,
+        4,
+        3,
+        2,
+        1
+    ];
+    var ppq = ppqArr[ppqQuant];
+    
+    return Math.round(startTime * ppq) / ppq;
 }
 
 function findFirstStartNotes(notesArr) {
-	var firstStartNotes = null;
-	for (var i = 0; i < notesArr.length; i++) {
-		var note = notesArr[i];
-		note.index = i;
-		if(firstStartNotes === null || note.start_time < firstStartNotes[0].start_time) {
-			firstStartNotes = [note];
-		} else if(note.start_time === firstStartNotes[0].start_time) {
-			firstStartNotes = firstStartNotes.concat(note);
-		}
-	}
-	return firstStartNotes;
+    var firstStartNotes = null;
+    for (var i = 0; i < notesArr.length; i++) {
+        var note = notesArr[i];
+        note.index = i;
+        if(firstStartNotes === null || note.start_time < firstStartNotes[0].start_time) {
+            firstStartNotes = [note];
+        } else if(note.start_time === firstStartNotes[0].start_time) {
+            firstStartNotes = firstStartNotes.concat(note);
+        }
+    }
+    return firstStartNotes;
 }
 
 function getFirstNotesAlignmentOffset({replaceNotesArr, firstStartNotes}) {
-	var maxOffset = null;
-	for (var i = 0; i < firstStartNotes.length; i++) {
-		var originalNote = firstStartNotes[i];
-		var arrIndex = originalNote.index;
-		var note = replaceNotesArr[arrIndex];
-		var originalStartTime = originalNote.start_time;
-		var startTime = note.start_time;
-		var offset = startTime - originalStartTime;
-		if(maxOffset === null || offset < maxOffset) {
-			maxOffset = offset;
-		}
-	}
-	return maxOffset;
+    var maxOffset = null;
+    for (var i = 0; i < firstStartNotes.length; i++) {
+        var originalNote = firstStartNotes[i];
+        var arrIndex = originalNote.index;
+        var note = replaceNotesArr[arrIndex];
+        var originalStartTime = originalNote.start_time;
+        var startTime = note.start_time;
+        var offset = startTime - originalStartTime;
+        if(maxOffset === null || offset < maxOffset) {
+            maxOffset = offset;
+        }
+    }
+    return maxOffset;
 }
 
 function alignOnFirstOne({notesArr, replaceNotesArr}) {
-	var firstStartNotes = findFirstStartNotes(notesArr);
-	var offsetAmt = getFirstNotesAlignmentOffset({
-		replaceNotesArr: replaceNotesArr,
-		firstStartNotes: firstStartNotes
-	});
-	var offsetNotesArr = [];
-	for (var i = 0; i < replaceNotesArr.length; i++) {
-		var note = replaceNotesArr[i];
-		var startTime = note.start_time;
-		startTime = startTime - offsetAmt;
-		note.start_time = startTime;
-		offsetNotesArr = offsetNotesArr.concat(note);
-	}
-	return offsetNotesArr;
+    var firstStartNotes = findFirstStartNotes(notesArr);
+    var offsetAmt = getFirstNotesAlignmentOffset({
+        replaceNotesArr: replaceNotesArr,
+        firstStartNotes: firstStartNotes
+    });
+    var offsetNotesArr = [];
+    for (var i = 0; i < replaceNotesArr.length; i++) {
+        var note = replaceNotesArr[i];
+        var startTime = note.start_time;
+        startTime = startTime - offsetAmt;
+        note.start_time = startTime;
+        offsetNotesArr = offsetNotesArr.concat(note);
+    }
+    return offsetNotesArr;
 }
 
 function quantizeAllNotes({notesArr, ppqQuant}) {
     for (var i = 0; i < notesArr.length; i++) {
         var note = JSON.parse(JSON.stringify(notesArr[i]));
-		var startTime = note.start_time;
+        var startTime = note.start_time;
         startTime = quantizeTiming({
-			startTime: startTime,
-			ppqQuant: ppqQuant
-		});
+            startTime: startTime,
+            ppqQuant: ppqQuant
+        });
         notesArr[i].start_time = startTime;
     }
     return notesArr;
 }
 
 function adjustTiming({notesArr, timeSteps, timeCfg}) {
-	/* 
-    	destructuring assignment doesn't exist in es5 
-    	which is the only es Max 8 supports.
+    /* 
+        destructuring assignment doesn't exist in es5 
+        which is the only es Max 8 supports.
     */
-	var gridSpeed = timeCfg.gridSpeed;
-	var ppqQuant = timeCfg.ppqQuant;
-	var rndAmt = timeCfg.rndAmt;
-	var rndSeed = timeCfg.rndSeed;
-	var offset = timeCfg.offset;
-	var quantOn1 = timeCfg.quantOn1;
-	var replaceNotesArr = [];
-	for (var i = 0; i < notesArr.length; i++) {
-		var note = JSON.parse(JSON.stringify(notesArr[i]));
-		var startTime = note.start_time;
-		var noteId = note.note_id;
-		startTime = adjustByTimeSteps({
-			startTime: startTime, 
-			timeSteps: timeSteps, 
-			gridSpeed: gridSpeed,
-		});
-		startTime = adjustByRandomTime({
-			startTime: startTime,
-			rndAmt: rndAmt,
-			rndSeed: rndSeed,
-			gridSpeed: gridSpeed,
-			noteId: noteId,
-		});
-		startTime = adjustByTimeOffset({
-			startTime: startTime,
-			offset: offset,
-			gridSpeed: gridSpeed
-		});
-		note.start_time = startTime;
-		replaceNotesArr = replaceNotesArr.concat(note);
-	}
-	if(quantOn1 === 1) {
-		replaceNotesArr = alignOnFirstOne({
-			notesArr: notesArr,
-			replaceNotesArr: replaceNotesArr,
-			gridSpeed: gridSpeed,
-		});
-	}
+    var gridSpeed = timeCfg.gridSpeed;
+    var ppqQuant = timeCfg.ppqQuant;
+    var rndAmt = timeCfg.rndAmt;
+    var rndSeed = timeCfg.rndSeed;
+    var offset = timeCfg.offset;
+    var quantOn1 = timeCfg.quantOn1;
+    var replaceNotesArr = [];
+    for (var i = 0; i < notesArr.length; i++) {
+        var note = JSON.parse(JSON.stringify(notesArr[i]));
+        var startTime = note.start_time;
+        var noteId = note.note_id;
+        startTime = adjustByTimeSteps({
+            startTime: startTime, 
+            timeSteps: timeSteps, 
+            gridSpeed: gridSpeed,
+        });
+        startTime = adjustByRandomTime({
+            startTime: startTime,
+            rndAmt: rndAmt,
+            rndSeed: rndSeed,
+            gridSpeed: gridSpeed,
+            noteId: noteId,
+        });
+        startTime = adjustByTimeOffset({
+            startTime: startTime,
+            offset: offset,
+            gridSpeed: gridSpeed
+        });
+        note.start_time = startTime;
+        replaceNotesArr = replaceNotesArr.concat(note);
+    }
+    if(quantOn1 === 1) {
+        replaceNotesArr = alignOnFirstOne({
+            notesArr: notesArr,
+            replaceNotesArr: replaceNotesArr,
+            gridSpeed: gridSpeed,
+        });
+    }
     replaceNotesArr = quantizeAllNotes({notesArr: replaceNotesArr, ppqQuant: ppqQuant});
-	return replaceNotesArr;
+    return replaceNotesArr;
 }
 
 function adjustByVelocitySteps({velocity, startTime, velSteps, gridSpeed}) {
-	var multiplier = getGridSpeedMultiplier(gridSpeed);
-	var noteGridPos = alignPos(startTime * multiplier);
-	var velAdj = interpolateSubStep({
-		noteGridPos: noteGridPos,
-		steps: velSteps,
-	});
-	return velocity + velAdj;
+    var multiplier = getGridSpeedMultiplier(gridSpeed);
+    var noteGridPos = alignPos(startTime * multiplier);
+    var velAdj = interpolateSubStep({
+        noteGridPos: noteGridPos,
+        steps: velSteps,
+    });
+    return velocity + velAdj;
 }
 
 function adjustByRandomVelocity({velocity, rndAmt, rndSeed, noteId}) {
-	var rng = randomizeRangePercentage({
-		rndAmt: rndAmt, 
-		rndSeed: rndSeed, 
-		rndRange: 127.0,
-		noteId: noteId,
-	});
-	return velocity + (rng * 127.0);
+    var rng = randomizeRangePercentage({
+        rndAmt: rndAmt, 
+        rndSeed: rndSeed, 
+        rndRange: 127.0,
+        noteId: noteId,
+    });
+    return velocity + (rng * 127.0);
 }
 
 function adjustByVelocityOffset({velocity, offset}) {
-	return velocity + offset;
+    return velocity + offset;
 }
 
 function adjustByVelocityCurve({velocity, curve}) {
-	// Quadratic bezier curve formula
-	var t = velocity / maxVelValue;
-	var controlPointX = midVelValue + (((curve * -1.0) / 100.0) * midVelValue);
-	var delta = Math.round(2 * (1 - t) * t * controlPointX) + (t * t * maxVelValue);
-	return (velocity - delta) + velocity;
+    // Quadratic bezier curve formula
+    var t = velocity / maxVelValue;
+    var controlPointX = midVelValue + (((curve * -1.0) / 100.0) * midVelValue);
+    var delta = Math.round(2 * (1 - t) * t * controlPointX) + (t * t * maxVelValue);
+    return (velocity - delta) + velocity;
 }
 
 function quantizeVelocity({velocity, quantize}) {
-	var multiplier = 128 / Math.pow(2, (8 - (quantize + 1)));
-	return (Math.round((velocity) / multiplier) * multiplier);
+    var multiplier = 128 / Math.pow(2, (8 - (quantize + 1)));
+    return (Math.round((velocity) / multiplier) * multiplier);
 }
 
 function truncateVelocity(velocity) {
-	if(velocity > maxVelValue) {
-		return maxVelValue;
-	}
-	if(velocity < minVelValue) {
-		return minVelValue;
-	}
-	return velocity;
+    if(velocity > maxVelValue) {
+        return maxVelValue;
+    }
+    if(velocity < minVelValue) {
+        return minVelValue;
+    }
+    return velocity;
 }
 
 function adjustVelocity({notesArr, velSteps, velCfg}) {
-	var gridSpeed = velCfg.gridSpeed;
-	var rndAmt = velCfg.rndAmt;
-	var rndSeed = velCfg.rndSeed;
-	var offset = velCfg.offset;
-	var curve = velCfg.curve;
-	var quantize = velCfg.quantize;
-	var replaceNotesArr = [];
-	for (var i = 0; i < notesArr.length; i++) {
-		var note = JSON.parse(JSON.stringify(notesArr[i]));
-		var startTime = note.start_time;
-		var velocity = note.velocity;
-		velocity = adjustByVelocitySteps({
-			velocity: velocity, 
-			startTime: startTime, 
-			velSteps: velSteps, 
-			gridSpeed: gridSpeed
-		});
-		velocity = adjustByRandomVelocity({
-			velocity: velocity,
-			rndAmt: rndAmt,
-			rndSeed: rndSeed,
-		});
-		velocity = adjustByVelocityOffset({
-			velocity: velocity,
-			offset: offset
-		});
-		velocity = adjustByVelocityCurve({
-			velocity: velocity,
-			curve: curve
-		});
-		velocity = quantizeVelocity({
-			velocity: velocity,
-			quantize: quantize
-		});
-		velocity = truncateVelocity(velocity);
-		note.velocity = velocity;
-		replaceNotesArr = replaceNotesArr.concat(note);
-	}
-	return replaceNotesArr;
+    var gridSpeed = velCfg.gridSpeed;
+    var rndAmt = velCfg.rndAmt;
+    var rndSeed = velCfg.rndSeed;
+    var offset = velCfg.offset;
+    var curve = velCfg.curve;
+    var quantize = velCfg.quantize;
+    var replaceNotesArr = [];
+    for (var i = 0; i < notesArr.length; i++) {
+        var note = JSON.parse(JSON.stringify(notesArr[i]));
+        var startTime = note.start_time;
+        var velocity = note.velocity;
+        velocity = adjustByVelocitySteps({
+            velocity: velocity, 
+            startTime: startTime, 
+            velSteps: velSteps, 
+            gridSpeed: gridSpeed
+        });
+        velocity = adjustByRandomVelocity({
+            velocity: velocity,
+            rndAmt: rndAmt,
+            rndSeed: rndSeed,
+        });
+        velocity = adjustByVelocityOffset({
+            velocity: velocity,
+            offset: offset
+        });
+        velocity = adjustByVelocityCurve({
+            velocity: velocity,
+            curve: curve
+        });
+        velocity = quantizeVelocity({
+            velocity: velocity,
+            quantize: quantize
+        });
+        velocity = truncateVelocity(velocity);
+        note.velocity = velocity;
+        replaceNotesArr = replaceNotesArr.concat(note);
+    }
+    return replaceNotesArr;
 }
 
 function transformNotes({propsObj, notesArr}) {
     /* 
-    	destructuring assignment doesn't exist in es5 
-    	which is the only es Max 8 supports.
+        destructuring assignment doesn't exist in es5 
+        which is the only es Max 8 supports.
     */
-	var timeSteps = propsObj.timeSteps;
-	var velSteps = propsObj.velSteps;
-	var timeCfg = propsObj.timeCfg;
-	var velCfg = propsObj.velCfg;
+    var timeSteps = propsObj.timeSteps;
+    var velSteps = propsObj.velSteps;
+    var timeCfg = propsObj.timeCfg;
+    var velCfg = propsObj.velCfg;
 
-	notesArr = adjustTiming({
-		notesArr: notesArr, 
-		timeSteps: timeSteps, 
-		timeCfg: timeCfg
-	});
-	notesArr = adjustVelocity({
-		notesArr: notesArr, 
-		velSteps: velSteps, 
-		velCfg: velCfg
-	});
-	
-	return JSON.stringify({
-		notes: notesArr,
-	});
+    notesArr = adjustTiming({
+        notesArr: notesArr, 
+        timeSteps: timeSteps, 
+        timeCfg: timeCfg
+    });
+    notesArr = adjustVelocity({
+        notesArr: notesArr, 
+        velSteps: velSteps, 
+        velCfg: velCfg
+    });
+    
+    return JSON.stringify({
+        notes: notesArr,
+    });
 }
 
 function averageArray(numberArray) {
@@ -391,13 +391,13 @@ function mapNoteGridPositions({propsObj, notesArr}) {
     var timeNoteDeviationMap = {};
     var velNoteDeviationMap = {};
     var timeCfg = propsObj.timeCfg;
-	var velCfg = propsObj.velCfg;
+    var velCfg = propsObj.velCfg;
     var timeGridSpeed = timeCfg.gridSpeed;
     var velGridSpeed = velCfg.gridSpeed;
     var totalVelocity = 0;
     for (var i = 0; i < notesArr.length; i++) {
         var note = JSON.parse(JSON.stringify(notesArr[i]));
-		var startTime = note.start_time;
+        var startTime = note.start_time;
         var velocity = note.velocity;
         var timeNoteGridPos = alignPos(getNoteGridPos({startTime: startTime, gridSpeed: timeGridSpeed}) + 1);
         var timeNoteStep = Math.round(timeNoteGridPos);
@@ -499,7 +499,7 @@ function calculateNoteOffsets({propsObj, notesArr}) {
 /* istanbul ignore next */ 
 function objectifyDict(name) {
     var dict = new Dict(name);
-	return JSON.parse(dict.stringify());
+    return JSON.parse(dict.stringify());
 }
 
 /* istanbul ignore next */ 
@@ -511,7 +511,7 @@ function sendOut(output) {
 function dictionary() {
     var ssObj = objectifyDict("ss");
     var propsObj = ssObj.properties;
-	var notesArr = ssObj.notes.notes;
+    var notesArr = ssObj.notes.notes;
     var capture = propsObj.capture;
     var output;
     if(capture) {
@@ -553,8 +553,8 @@ function captureNotes({propsObj, notesArr}) {
     var captureStore = this.patcher.getnamed("captureStore");
     captureStore.set(0);
     return JSON.stringify({
-		notes: notesArr,
-	});
+        notes: notesArr,
+    });
 }
 
 exports.getGridSpeedMultiplier = getGridSpeedMultiplier;
