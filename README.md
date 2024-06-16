@@ -35,11 +35,11 @@ Download [Swing{set}.amxd](Swing{set}.amxd) (or this entire repo). Drop the .amx
 
 ### YouTube
 
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/wANw-zN4JZ-a5KJP/0.jpg)](https://youtu.be/Prog_ZwvrlI)
+[Watch on YouTube](https://youtu.be/Prog_ZwvrlI)
 
 ### Audio Example
 
-- [Listen On Soundcloud](https://on.soundcloud.com/4sdqLhvk6hxhc7Zt8)
+[Listen On Soundcloud](https://on.soundcloud.com/4sdqLhvk6hxhc7Zt8)
 
 ## Credits
 This repository includes a copy of [seedrandom](https://github.com/davidbau/seedrandom) used under the MIT license.
